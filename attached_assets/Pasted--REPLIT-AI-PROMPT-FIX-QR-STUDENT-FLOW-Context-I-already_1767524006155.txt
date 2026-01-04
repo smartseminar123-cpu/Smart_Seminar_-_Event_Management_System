@@ -1,0 +1,159 @@
+🔷 REPLIT AI PROMPT (FIX QR → STUDENT FLOW)
+
+Context:
+I already have a working prototype of Smart Seminar & Event Management System (SSEMS) with:
+
+College registration
+
+Role-based login (SuperAdmin / Admin / Guard)
+
+Admin can create seminars with seat grids
+
+Admin dashboard shows seminars with Show QR and View Page
+
+Seat selection page already exists and works
+
+Problem to fix:
+When a student scans the QR code, it directly opens the seat selection page, skipping the student registration form. I want to fix the routing and flow.
+
+🎯 REQUIRED STUDENT FLOW (VERY IMPORTANT)
+
+Student scans QR
+
+QR opens Student Registration Page
+
+Student fills personal details
+
+Clicks Confirm
+
+Redirects to Seat Selection Page
+
+Selects seat and clicks Register
+
+PDF ticket auto-downloads with QR for guard verification
+
+🛠 TASKS TO IMPLEMENT
+1️⃣ Fix QR Code Generation (CRITICAL)
+
+Update QR code value so it points to:
+
+/seminar/:seminarId
+
+
+❌ Do NOT point QR to seat selection
+❌ Do NOT skip student form
+
+2️⃣ Create Student Registration Page
+
+Route
+
+/seminar/:id
+
+
+Page Requirements
+
+Fetch seminar details using id
+
+Display:
+
+Seminar title, date, time, venue
+
+Student input form:
+
+School / College Name (optional)
+
+Course (required ONLY if college name is filled)
+
+Semester (required ONLY if college name is filled)
+
+Name (required)
+
+Email (required)
+
+Phone number (required)
+
+Validate inputs properly
+
+“Confirm” button
+
+3️⃣ Redirect to Seat Selection After Confirm
+
+On clicking Confirm:
+
+Temporarily store student data (state or Firestore draft)
+
+Navigate to:
+
+/seminar/:id/seats
+
+
+Pass student data forward
+
+4️⃣ Seat Selection Page (Reuse Existing)
+
+Route
+
+/seminar/:id/seats
+
+
+Use existing seat grid logic
+
+Ensure seat locking
+
+On clicking Register:
+
+Save full registration (student + seat)
+
+Mark seat as booked
+
+Generate unique receipt ID
+
+5️⃣ PDF Ticket Auto-Download
+
+Generate PDF automatically after successful registration
+
+PDF must include:
+
+Seminar details
+
+Student details
+
+Seat number
+
+Unique receipt ID
+
+QR code for guard verification
+
+6️⃣ Guard QR Compatibility (DO NOT BREAK)
+
+Guard QR scanning logic must continue working
+
+QR inside PDF should contain:
+
+/verify/:ticketId
+
+📁 CODE QUALITY REQUIREMENTS
+
+Do NOT break existing Admin, SuperAdmin, or Guard flows
+
+Keep routing clean and readable
+
+Use React Router properly
+
+Add comments explaining:
+
+Why QR route was changed
+
+Student flow logic
+
+🎯 FINAL GOAL
+
+After this fix:
+
+Scanning QR opens student registration form
+
+Seat selection only appears after confirmation
+
+PDF auto-downloads successfully
+
+Flow matches real-world seminar systems
