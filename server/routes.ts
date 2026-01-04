@@ -4,11 +4,10 @@ import { storage } from "./storage";
 import { api, errorSchemas } from "@shared/routes";
 import { z } from "zod";
 
-export async function registerRoutes(
+export function registerRoutes(
   httpServer: Server,
   app: Express
-): Promise<Server> {
-
+): Server {
   // === PUBLIC: COLLEGES ===
   app.get(api.colleges.list.path, async (req, res) => {
     const colleges = await storage.getColleges();
@@ -193,6 +192,14 @@ export async function registerRoutes(
   });
 
   // === SEED DATA ===
+  seedDatabase().catch(err => {
+    console.error("Failed to seed database:", err);
+  });
+
+  return httpServer;
+}
+
+async function seedDatabase() {
   const existingColleges = await storage.getColleges();
   if (existingColleges.length === 0) {
     const college = await storage.createCollege({
@@ -233,6 +240,4 @@ export async function registerRoutes(
       thumbnail: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80"
     });
   }
-
-  return httpServer;
 }
