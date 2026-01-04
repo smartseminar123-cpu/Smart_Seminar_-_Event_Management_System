@@ -149,7 +149,7 @@ export const api = {
     },
   },
 
-  // === GUARD ===
+  // === GUARD / VERIFICATION ===
   attendance: {
     verify: {
       method: 'POST' as const,
@@ -165,6 +165,17 @@ export const api = {
       },
     },
   },
+  // Added for direct verification URL support if needed
+  tickets: {
+    get: {
+      method: 'GET' as const,
+      path: '/api/tickets/:uniqueId',
+      responses: {
+        200: z.custom<typeof registrations.$inferSelect & { seminar: typeof seminars.$inferSelect }>(),
+        404: errorSchemas.notFound,
+      },
+    },
+  }
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {
