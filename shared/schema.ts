@@ -8,7 +8,6 @@ import { z } from "zod";
 export const colleges = pgTable("colleges", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  // In a real app, these credentials would be hashed/secured or handled via a separate auth system
   superAdminUsername: text("super_admin_username").notNull(),
   superAdminPassword: text("super_admin_password").notNull(), 
   createdAt: timestamp("created_at").defaultNow(),
@@ -26,15 +25,15 @@ export const users = pgTable("users", {
 export const seminars = pgTable("seminars", {
   id: serial("id").primaryKey(),
   collegeId: integer("college_id").references(() => colleges.id).notNull(),
+  slug: text("slug").notNull().unique(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  date: text("date").notNull(), // ISO date string YYYY-MM-DD
-  time: text("time").notNull(), // HH:MM
+  date: text("date").notNull(),
+  time: text("time").notNull(),
   venue: text("venue").notNull(),
-  thumbnail: text("thumbnail"), // URL or placeholder
+  thumbnail: text("thumbnail"),
   rows: integer("rows").notNull(),
   cols: integer("cols").notNull(),
-  slug: text("slug").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -44,12 +43,13 @@ export const registrations = pgTable("registrations", {
   studentName: text("student_name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
-  course: text("course"), // Optional
-  semester: text("semester"), // Optional
+  collegeName: text("college_name"),
+  course: text("course"),
+  semester: text("semester"),
   seatRow: integer("seat_row").notNull(),
   seatCol: integer("seat_col").notNull(),
   attended: boolean("attended").default(false),
-  uniqueId: text("unique_id").notNull(), // For QR Code
+  uniqueId: text("unique_id").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -93,30 +93,24 @@ export const insertRegistrationSchema = createInsertSchema(registrations).omit({
 
 export type College = typeof colleges.$inferSelect;
 export type InsertCollege = z.infer<typeof insertCollegeSchema>;
-
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
-
 export type Seminar = typeof seminars.$inferSelect;
 export type InsertSeminar = z.infer<typeof insertSeminarSchema>;
-
 export type Registration = typeof registrations.$inferSelect;
 export type InsertRegistration = z.infer<typeof insertRegistrationSchema>;
 
-// Request types
 export type CreateCollegeRequest = InsertCollege;
 export type CreateUserRequest = InsertUser;
 export type CreateSeminarRequest = InsertSeminar;
 export type CreateRegistrationRequest = InsertRegistration;
 
-// Specific Login Request
 export type LoginRequest = {
   collegeId: number;
   username: string;
   password: string;
 };
 
-// Response types
 export type LoginResponse = {
   user: User;
   college: College;
