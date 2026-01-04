@@ -10,7 +10,9 @@ import RegisterCollege from "@/pages/RegisterCollege";
 import SuperAdminDashboard from "@/pages/SuperAdminDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 import GuardDashboard from "@/pages/GuardDashboard";
-import StudentRegistration from "@/pages/StudentRegistration";
+import SeminarDetailsPage from "@/pages/SeminarDetailsPage";
+import StudentRegisterPage from "@/pages/StudentRegisterPage";
+import SeatSelectionPage from "@/pages/SeatSelectionPage";
 
 function Router() {
   return (
@@ -24,7 +26,9 @@ function Router() {
       <Route path="/guard/dashboard" component={GuardDashboard} />
       
       {/* Public Student Routes */}
-      <Route path="/seminar/:id/register" component={StudentRegistration} />
+      <Route path="/:slug" component={SeminarDetailsPage} />
+      <Route path="/:slug/register" component={StudentRegisterPage} />
+      <Route path="/:slug/seats" component={SeatSelectionPage} />
 
       <Route component={NotFound} />
     </Switch>

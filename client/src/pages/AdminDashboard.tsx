@@ -34,11 +34,18 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!college) return;
 
-    createSeminar({
-      ...formData,
-      collegeId: college.id,
-      thumbnail: "", // Optional
-    }, {
+      // Generate a slug from the title
+      const slug = formData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+
+      createSeminar({
+        ...formData,
+        collegeId: college.id,
+        thumbnail: "", // Optional
+        slug, // Add the generated slug here
+      }, {
       onSuccess: () => {
         toast({ title: "Seminar Created", description: "Event is now live for registration" });
         setIsDialogOpen(false);
@@ -50,7 +57,8 @@ export default function AdminDashboard() {
     });
   };
 
-  const getPublicLink = (id: number) => `${window.location.origin}/seminar/${id}/register`;
+  const getPublicLink = (slug: string) => `${window.location.origin}/${slug}/register`;
+  const getViewLink = (slug: string) => `${window.location.origin}/${slug}`;
 
   if (!user || !college) return <div>Access Denied</div>;
 
@@ -220,20 +228,20 @@ export default function AdminDashboard() {
                     </DialogHeader>
                     <div className="flex flex-col items-center gap-4 py-4">
                       <div className="p-4 bg-white border rounded-xl shadow-sm">
-                        <QRCodeSVG value={getPublicLink(seminar.id)} size={200} />
+                        <QRCodeSVG value={getPublicLink(seminar.slug)} size={200} />
                       </div>
                       <a 
-                        href={getPublicLink(seminar.id)} 
+                        href={getPublicLink(seminar.slug)} 
                         target="_blank" 
                         className="text-xs text-primary hover:underline text-center break-all"
                       >
-                        {getPublicLink(seminar.id)}
+                        {getPublicLink(seminar.slug)}
                       </a>
                     </div>
                   </DialogContent>
                 </Dialog>
                 <Button size="sm" asChild>
-                  <a href={`/seminar/${seminar.id}/register`} target="_blank">View Page</a>
+                  <a href={getViewLink(seminar.slug)} target="_blank">View Page</a>
                 </Button>
               </CardFooter>
             </Card>

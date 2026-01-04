@@ -1,10 +1,8 @@
-import { db } from "./db";
 import {
   colleges, users, seminars, registrations,
   type InsertCollege, type InsertUser, type InsertSeminar, type InsertRegistration,
   type College, type User, type Seminar, type Registration
 } from "@shared/schema";
-import { eq, and } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -40,129 +38,222 @@ export interface IStorage {
   }>;
 }
 
-export class DatabaseStorage implements IStorage {
-  // Colleges
-  async getColleges(): Promise<College[]> {
-    return await db.select().from(colleges);
-  }
-  
-  async createCollege(college: InsertCollege): Promise<College> {
-    const [newCollege] = await db.insert(colleges).values(college).returning();
-    return newCollege;
+export class MemStorage implements IStorage {
+  private colleges: Map<number, College>;
+  private users: Map<number, User>;
+  private seminars: Map<number, Seminar>;
+  private registrations: Map<number, Registration>;
+  private currentId: { [key: string]: number };
+
+  constructor() {
+    this.colleges = new Map();
+    this.users = new Map();
+    this.seminars = new Map();
+    this.registrations = new Map();
+    this.currentId = { colleges: 1, users: 1, seminars: 1, registrations: 1 };
+    
+    this.initializeDemoData();
   }
 
-  async getCollege(id: number): Promise<College | undefined> {
-    const [college] = await db.select().from(colleges).where(eq(colleges.id, id));
+  private initializeDemoData() {
+    // Create Demo College
+    const collegeId = this.currentId.colleges++;
+    const college: College = {
+        id: collegeId,
+        name: "Demo College",
+        superAdminUsername: "superadmin",
+        superAdminPassword: "password", 
+        createdAt: new Date()
+    };
+    this.colleges.set(college.id, college);
+
+    // Create Users
+    const superUser: User = {
+        id: this.currentId.users++,
+        collegeId: college.id,
+        username: "superadmin",
+        password: "password",
+        role: "superadmin",
+        createdAt: new Date()
+    };
+    this.users.set(superUser.id, superUser);
+
+    const adminUser: User = {
+        id: this.currentId.users++,
+        collegeId: college.id,
+        username: "admin",
+        password: "password",
+        role: "admin",
+        createdAt: new Date()
+    };
+    this.users.set(adminUser.id, adminUser);
+
+    const guardUser: User = {
+        id: this.currentId.users++,
+        collegeId: college.id,
+        username: "guard",
+        password: "password",
+        role: "guard",
+        createdAt: new Date()
+    };
+    this.users.set(guardUser.id, guardUser);
+
+    // Create Seminar
+    const seminarId = this.currentId.seminars++;
+    const seminar: Seminar = {
+        id: seminarId,
+        collegeId: college.id,
+        slug: "ai-in-education",
+        title: "AI in Education",
+        description: "Exploring the future of AI in classrooms.",
+        date: "2024-05-20",
+        time: "10:00 AM",
+        venue: "Main Auditorium",
+        thumbnail: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+        rows: 10,
+        cols: 10,
+        createdAt: new Date()
+    };
+    this.seminars.set(seminar.id, seminar);
+    
+    // Create Registrations
+    const regId = this.currentId.registrations++;
+    const reg1: Registration = {
+        id: regId,
+        seminarId: seminar.id,
+        studentName: "John Doe",
+        email: "john@example.com",
+        phone: "1234567890",
+        collegeName: "Demo College",
+        course: "CS",
+        semester: "6",
+        seatRow: 1,
+        seatCol: 1,
+        attended: false,
+        uniqueId: "ABC12345",
+        createdAt: new Date()
+    };
+    this.registrations.set(reg1.id, reg1);
+  }
+
+  async getColleges(): Promise<College[]> {
+    return Array.from(this.colleges.values());
+  }
+
+  async createCollege(insertCollege: InsertCollege): Promise<College> {
+    const id = this.currentId.colleges++;
+    const college: College = { ...insertCollege, id, createdAt: new Date() };
+    this.colleges.set(id, college);
     return college;
   }
 
-  // Users
+  async getCollege(id: number): Promise<College | undefined> {
+    return this.colleges.get(id);
+  }
+
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    return this.users.get(id);
   }
 
   async getUserByUsername(collegeId: number, username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(
-      and(
-        eq(users.collegeId, collegeId),
-        eq(users.username, username)
-      )
+    return Array.from(this.users.values()).find(
+      (user) => user.collegeId === collegeId && user.username === username
     );
-    return user;
   }
 
   async getUsersByCollege(collegeId: number): Promise<User[]> {
-    return await db.select().from(users).where(eq(users.collegeId, collegeId));
+    return Array.from(this.users.values()).filter(
+      (user) => user.collegeId === collegeId
+    );
   }
 
-  async createUser(user: InsertUser): Promise<User> {
-    const [newUser] = await db.insert(users).values(user).returning();
-    return newUser;
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = this.currentId.users++;
+    const user: User = { ...insertUser, id, createdAt: new Date() };
+    this.users.set(id, user);
+    return user;
   }
 
-  // Seminars
   async getSeminars(collegeId: number): Promise<Seminar[]> {
-    return await db.select().from(seminars).where(eq(seminars.collegeId, collegeId));
-  }
-
-  async getSeminarBySlug(slug: string): Promise<Seminar | undefined> {
-    const [seminar] = await db.select().from(seminars).where(eq(seminars.slug, slug));
-    return seminar;
+    return Array.from(this.seminars.values()).filter(
+      (seminar) => seminar.collegeId === collegeId
+    );
   }
 
   async getSeminar(id: number): Promise<Seminar | undefined> {
-    const [seminar] = await db.select().from(seminars).where(eq(seminars.id, id));
-    return seminar;
+    return this.seminars.get(id);
   }
 
   async getSeminarBySlug(slug: string): Promise<Seminar | undefined> {
-    const [seminar] = await db.select().from(seminars).where(eq(seminars.slug, slug));
+    return Array.from(this.seminars.values()).find(
+      (seminar) => seminar.slug === slug
+    );
+  }
+
+  async createSeminar(insertSeminar: InsertSeminar): Promise<Seminar> {
+    const id = this.currentId.seminars++;
+    const seminar: Seminar = { ...insertSeminar, id, createdAt: new Date() };
+    this.seminars.set(id, seminar);
     return seminar;
   }
 
-  async createSeminar(seminar: InsertSeminar): Promise<Seminar> {
-    const [newSeminar] = await db.insert(seminars).values(seminar).returning();
-    return newSeminar;
-  }
-
-  // Registrations
-  async createRegistration(registration: InsertRegistration): Promise<Registration> {
-    // Generate unique ID if not provided (though schema default handles randomUUID, our schema uses text for uniqueId)
-    const uniqueId = randomUUID().split('-')[0].toUpperCase(); 
-    const [newReg] = await db.insert(registrations).values({
-      ...registration,
-      uniqueId
-    }).returning();
-    return newReg;
+  async createRegistration(insertRegistration: InsertRegistration): Promise<Registration> {
+    const id = this.currentId.registrations++;
+    const uniqueId = randomUUID().split('-')[0].toUpperCase();
+    const registration: Registration = { 
+        ...insertRegistration, 
+        id, 
+        uniqueId, 
+        attended: false,
+        createdAt: new Date() 
+    };
+    this.registrations.set(id, registration);
+    return registration;
   }
 
   async getRegistrations(seminarId: number): Promise<Registration[]> {
-    return await db.select().from(registrations).where(eq(registrations.seminarId, seminarId));
+    return Array.from(this.registrations.values()).filter(
+      (reg) => reg.seminarId === seminarId
+    );
   }
 
   async getRegistrationBySeat(seminarId: number, row: number, col: number): Promise<Registration | undefined> {
-    const [reg] = await db.select().from(registrations).where(
-      and(
-        eq(registrations.seminarId, seminarId),
-        eq(registrations.seatRow, row),
-        eq(registrations.seatCol, col)
-      )
+    return Array.from(this.registrations.values()).find(
+      (reg) => reg.seminarId === seminarId && reg.seatRow === row && reg.seatCol === col
     );
-    return reg;
   }
 
   async getRegistrationByUniqueId(uniqueId: string): Promise<Registration | undefined> {
-    const [reg] = await db.select().from(registrations).where(eq(registrations.uniqueId, uniqueId));
-    return reg;
+    return Array.from(this.registrations.values()).find(
+      (reg) => reg.uniqueId === uniqueId
+    );
   }
 
   async markAttendance(id: number): Promise<void> {
-    await db.update(registrations).set({ attended: true }).where(eq(registrations.id, id));
+    const registration = this.registrations.get(id);
+    if (registration) {
+      registration.attended = true;
+      this.registrations.set(id, registration);
+    }
   }
 
-  // Stats
   async getCollegeStats(collegeId: number): Promise<{
     totalSeminars: number;
     totalRegistrations: number;
     avgAttendance: number;
   }> {
-    // Get seminars for college
     const collegeSeminars = await this.getSeminars(collegeId);
     const totalSeminars = collegeSeminars.length;
-    
+
     if (totalSeminars === 0) {
       return { totalSeminars: 0, totalRegistrations: 0, avgAttendance: 0 };
     }
 
-    const seminarIds = collegeSeminars.map(s => s.id);
-    // Simple mock stat calculation since Drizzle aggregation can be verbose
-    // In production use SQL aggregation
     let totalRegistrations = 0;
     let attendedRegistrations = 0;
 
-    for (const semId of seminarIds) {
-      const regs = await this.getRegistrations(semId);
+    for (const seminar of collegeSeminars) {
+      const regs = await this.getRegistrations(seminar.id);
       totalRegistrations += regs.length;
       attendedRegistrations += regs.filter(r => r.attended).length;
     }
@@ -179,4 +270,4 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new MemStorage();

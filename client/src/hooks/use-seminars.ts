@@ -23,6 +23,20 @@ export function useSeminar(id: number) {
       if (!res.ok) throw new Error("Failed to fetch seminar details");
       return api.seminars.get.responses[200].parse(await res.json());
     },
+    enabled: !!id,
+  });
+}
+
+export function useSeminarBySlug(slug: string) {
+  return useQuery({
+    queryKey: [api.seminars.getBySlug.path, slug],
+    queryFn: async () => {
+      const url = buildUrl(api.seminars.getBySlug.path, { slug });
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to fetch seminar details");
+      return api.seminars.getBySlug.responses[200].parse(await res.json());
+    },
+    enabled: !!slug,
   });
 }
 
