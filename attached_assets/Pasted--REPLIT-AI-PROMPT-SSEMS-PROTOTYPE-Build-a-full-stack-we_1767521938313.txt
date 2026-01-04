@@ -1,0 +1,255 @@
+🔷 REPLIT AI PROMPT (SSEMS PROTOTYPE)
+
+Build a full-stack web application prototype called
+“Smart Seminar & Event Management System (SSEMS)”
+using React (frontend), Node.js/Express (backend), and Firebase Firestore (database).
+Focus on clean architecture, role-based access, and functional UI.
+
+🔐 GLOBAL LOGIN & AUTHENTICATION
+
+Create a single login page at / for all roles:
+
+Super Admin
+
+Admin
+
+Guard
+
+Login form fields:
+
+Select College (dropdown populated from database)
+
+Username
+
+Password
+
+Login button
+
+Login Logic:
+
+After login:
+
+Validate credentials against selected college
+
+Detect user role automatically (no role selector)
+
+Redirect based on role:
+
+Super Admin → /superadmin/dashboard
+
+Admin → /admin/dashboard
+
+Guard → /guard/dashboard
+
+🏫 COLLEGE REGISTRATION
+
+Route: /register
+
+This page is ONLY for registering a new college
+
+Input fields:
+
+College Name
+
+Super Admin Username
+
+Super Admin Password
+
+On submit:
+
+Create a new college record in Firestore
+
+Store Super Admin credentials linked to that college
+
+The college must appear in the login dropdown on /
+
+Super Admins CANNOT create colleges from dashboard
+
+👑 SUPER ADMIN MODULE (Per College)
+
+Dashboard (/superadmin/dashboard)
+
+Display 4 insight cards:
+
+Total seminars/events conducted in the last month
+
+Average perfect attendance percentage
+
+Most attended seminar/event type
+
+Smart system suggestion (e.g. best seminar timing/type based on data)
+
+Management Section
+
+Button: “Management”
+
+Page shows:
+
+List of Admins
+
+List of Guards
+
+“Add User” button:
+
+Option to create Admin or Guard
+
+Fields: Username, Password
+
+Save role-based user under that college
+
+🧑‍💼 ADMIN MODULE
+
+Admin Dashboard (/admin/dashboard)
+
+Show all created seminars/events as cards:
+
+Thumbnail
+
+Title
+
+Date & time
+
+Create Seminar/Event (Multi-Step Form)
+
+Step 1 – Seminar Details
+
+Title
+
+Description
+
+Date
+
+Time
+
+Venue
+
+Thumbnail (optional)
+
+Step 2 – Seating Layout
+
+Input:
+
+Number of Rows
+
+Number of Columns
+
+Generate a BookMyShow-style seat grid
+
+Seats must support locking (no double booking)
+
+Confirm
+
+Save seminar to database
+
+Show seminar in admin dashboard
+
+Seminar Detail Page
+
+Full seminar information
+
+Generate:
+
+Public registration link
+
+QR code containing that link
+
+🎓 STUDENT REGISTRATION (PUBLIC, NO LOGIN)
+
+Student opens QR or link
+
+Show seminar full details
+
+Registration form:
+
+School/College Name (optional)
+
+Course (required if college filled)
+
+Semester (required if college filled)
+
+Name (required)
+
+Email (required)
+
+Phone number (required)
+
+Seat Selection
+
+Show live seating grid
+
+Allow seat selection
+
+Lock seat on confirmation
+
+Ticket Generation
+
+Auto-generate and download PDF containing:
+
+Seminar details
+
+Student details
+
+Unique Receipt ID
+
+QR code for attendance verification
+
+🛂 GUARD MODULE
+
+Guard Dashboard (/guard/dashboard)
+
+Single feature:
+
+“Scan QR” button
+
+Open camera for QR scanning
+
+On scan:
+
+Validate ticket
+
+Mark attendance = true in database
+
+Prevent duplicate scans
+
+🗄️ DATABASE (Firestore – Suggested Structure)
+
+colleges
+
+users (role: superadmin/admin/guard)
+
+seminars
+
+seats
+
+registrations
+
+attendance
+
+Each record must be scoped to a collegeId.
+
+🎨 UI & UX REQUIREMENTS
+
+Use modern card-based dashboards
+
+Responsive layout
+
+Clear navigation per role
+
+Charts can use placeholder or basic calculated logic
+
+Focus on functional prototype, not production security
+
+⚙️ ADDITIONAL NOTES
+
+Use Firebase Firestore for storage
+
+Use QR generation and scanning libraries
+
+Use jsPDF for ticket PDF generation
+
+Keep code modular and readable
+
+Add comments explaining logic
+
+Goal:
+Create a clean, working prototype that demonstrates real-world seminar management, role-based dashboards, seat booking, QR attendance, and analytics.
