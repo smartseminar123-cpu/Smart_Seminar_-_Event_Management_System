@@ -22,6 +22,7 @@ export interface IStorage {
   // Seminars
   getSeminars(collegeId: number): Promise<Seminar[]>;
   getSeminar(id: number): Promise<Seminar | undefined>;
+  getSeminarBySlug(slug: string): Promise<Seminar | undefined>;
   createSeminar(seminar: InsertSeminar): Promise<Seminar>;
   
   // Registrations
@@ -85,8 +86,18 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(seminars).where(eq(seminars.collegeId, collegeId));
   }
 
+  async getSeminarBySlug(slug: string): Promise<Seminar | undefined> {
+    const [seminar] = await db.select().from(seminars).where(eq(seminars.slug, slug));
+    return seminar;
+  }
+
   async getSeminar(id: number): Promise<Seminar | undefined> {
     const [seminar] = await db.select().from(seminars).where(eq(seminars.id, id));
+    return seminar;
+  }
+
+  async getSeminarBySlug(slug: string): Promise<Seminar | undefined> {
+    const [seminar] = await db.select().from(seminars).where(eq(seminars.slug, slug));
     return seminar;
   }
 

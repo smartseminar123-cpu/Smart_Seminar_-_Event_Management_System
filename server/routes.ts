@@ -104,6 +104,15 @@ export async function registerRoutes(
     res.json(seminars);
   });
 
+  app.get(api.seminars.getBySlug.path, async (req, res) => {
+    const slug = req.params.slug;
+    const seminar = await storage.getSeminarBySlug(slug);
+    if (!seminar) return res.status(404).json({ message: "Seminar not found" });
+    
+    const registrations = await storage.getRegistrations(seminar.id);
+    res.json({ ...seminar, registrations });
+  });
+
   app.post(api.seminars.create.path, async (req, res) => {
     try {
       const input = api.seminars.create.input.parse(req.body);
@@ -123,6 +132,15 @@ export async function registerRoutes(
     if (!seminar) return res.status(404).json({ message: "Seminar not found" });
     
     const registrations = await storage.getRegistrations(id);
+    res.json({ ...seminar, registrations });
+  });
+
+  app.get(api.seminars.getBySlug.path, async (req, res) => {
+    const slug = req.params.slug;
+    const seminar = await storage.getSeminarBySlug(slug);
+    if (!seminar) return res.status(404).json({ message: "Seminar not found" });
+    
+    const registrations = await storage.getRegistrations(seminar.id);
     res.json({ ...seminar, registrations });
   });
 
@@ -211,6 +229,7 @@ export async function registerRoutes(
       venue: "Main Auditorium",
       rows: 10,
       cols: 10,
+      slug: "ai-future-tech",
       thumbnail: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80"
     });
   }

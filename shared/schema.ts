@@ -34,6 +34,7 @@ export const seminars = pgTable("seminars", {
   thumbnail: text("thumbnail"), // URL or placeholder
   rows: integer("rows").notNull(),
   cols: integer("cols").notNull(),
+  slug: text("slug").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

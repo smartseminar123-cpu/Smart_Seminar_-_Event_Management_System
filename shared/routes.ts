@@ -117,6 +117,14 @@ export const api = {
         404: errorSchemas.notFound,
       },
     },
+    getBySlug: {
+      method: 'GET' as const,
+      path: '/api/seminars/slug/:slug',
+      responses: {
+        200: z.custom<typeof seminars.$inferSelect & { registrations: typeof registrations.$inferSelect[] }>(),
+        404: errorSchemas.notFound,
+      },
+    },
     create: {
       method: 'POST' as const,
       path: '/api/seminars',
