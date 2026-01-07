@@ -1,0 +1,169 @@
+🔷 REPLIT AI PROMPT (FINAL – QR & VIEW PAGE FIX)
+
+Project: Smart Seminar & Event Management System (SSEMS)
+Status: Core system already working (Admin, Guard, Seminar creation, seat grid, QR scan, PDF generation)
+
+Task: Fix and clearly separate Show QR and View Page behavior for seminars.
+
+🎯 REQUIRED BEHAVIOR (DO NOT CHANGE)
+
+On Admin Dashboard → Seminar Card, there are two buttons:
+
+🔹 Button 1: Show QR
+
+Purpose: Student registration entry
+
+When clicked:
+
+Show a QR code
+
+QR code URL MUST point to:
+
+/{seminarSlug}/register
+
+
+When a student scans this QR:
+
+Open Student Registration Page
+
+Show:
+
+Full seminar details
+
+Student registration form
+
+Student clicks Next
+
+Redirect to seat selection
+
+Student selects seat → clicks Register
+
+PDF ticket auto-downloads
+
+🔹 Button 2: View Page
+
+Purpose: Read-only seminar details
+
+Redirects to:
+
+/{seminarSlug}
+
+
+This page must show:
+
+Full seminar details
+
+Same QR code (linking to /register)
+
+❌ NO student form
+
+❌ NO seat selection
+
+❌ NO registration action
+
+🧭 ROUTING STRUCTURE (MANDATORY)
+
+Implement three separate routes:
+
+/{seminarSlug}              → SeminarDetailsPage (View Page)
+/{seminarSlug}/register     → StudentRegisterPage
+/{seminarSlug}/seats        → SeatSelectionPage
+
+
+Do NOT merge these pages.
+
+🧾 STUDENT REGISTER PAGE
+
+Route: /{seminarSlug}/register
+
+UI Requirements
+
+Seminar title, date, time, venue
+
+Student form:
+
+School / College Name (optional)
+
+Course (required ONLY if college name filled)
+
+Semester (required ONLY if college name filled)
+
+Name (required)
+
+Email (required)
+
+Phone number (required)
+
+Next button
+
+Logic
+
+On clicking Next:
+
+Temporarily store student data (state or Firestore draft)
+
+Redirect to:
+
+/{seminarSlug}/seats
+
+🪑 SEAT SELECTION PAGE
+
+Route: /{seminarSlug}/seats
+
+Use existing seat grid logic
+
+Prevent double booking
+
+On clicking Register:
+
+Save final registration
+
+Generate unique receipt ID
+
+Auto-download PDF
+
+PDF Must Include
+
+Seminar details
+
+Student details
+
+Seat number
+
+Receipt ID
+
+QR code for guard verification
+
+🛂 GUARD FLOW (DO NOT BREAK)
+
+Guard QR scanning must continue working
+
+QR inside PDF should validate attendance correctly
+
+Duplicate scans must be prevented
+
+⚠️ IMPORTANT CONSTRAINTS
+
+Do NOT break existing Admin / SuperAdmin / Guard dashboards
+
+Do NOT remove working seat logic
+
+Do NOT skip student form
+
+Keep code clean and commented
+
+Use React Router properly
+
+✅ FINAL GOAL
+
+After implementation:
+
+✅ Show QR → opens student registration page
+
+✅ View Page → shows details + QR only
+
+✅ Student flow: Form → Seat → PDF
+
+✅ Guard scan works as before
+
+END OF PROMPT
